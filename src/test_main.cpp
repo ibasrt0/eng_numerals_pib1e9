@@ -16,30 +16,31 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch2/catch.hpp"
 
-std::string fail_test(const std::string& s) {
-    return std::string{""};
-}
+#include "eng_numerals_pib1e9.hpp"
+
+namespace enp1e9 = eng_numerals_pib1e9;
+
 TEST_CASE("one to twenty","[]") {
-    REQUIRE( fail_test("one") == std::string("1") );
-    REQUIRE( fail_test("two") == std::string("2") );
-    REQUIRE( fail_test("three") == std::string("3") );
-    REQUIRE( fail_test("four") == std::string("4") );
-    REQUIRE( fail_test("five") == std::string("5") );
-    REQUIRE( fail_test("six") ==  std::string("6") );
-    REQUIRE( fail_test("seven") == std::string("7") );
-    REQUIRE( fail_test("eight") == std::string("8") );
-    REQUIRE( fail_test("nine") == std::string("9") );
+    REQUIRE( enp1e9::convert_to_digits("one") == std::string("1") );
+    REQUIRE( enp1e9::convert_to_digits("two") == std::string("2") );
+    REQUIRE( enp1e9::convert_to_digits("three") == std::string("3") );
+    REQUIRE( enp1e9::convert_to_digits("four") == std::string("4") );
+    REQUIRE( enp1e9::convert_to_digits("five") == std::string("5") );
+    REQUIRE( enp1e9::convert_to_digits("six") ==  std::string("6") );
+    REQUIRE( enp1e9::convert_to_digits("seven") == std::string("7") );
+    REQUIRE( enp1e9::convert_to_digits("eight") == std::string("8") );
+    REQUIRE( enp1e9::convert_to_digits("nine") == std::string("9") );
 
-    REQUIRE( fail_test("ten") == std::string("10") );
-    REQUIRE( fail_test("eleven") == std::string("11") );
-    REQUIRE( fail_test("twelve") ==  std::string("12") );
-    REQUIRE( fail_test("thirteen") ==  std::string("13") );
-    REQUIRE( fail_test("fourteen") ==  std::string("14") );
-    REQUIRE( fail_test("fifteen") ==  std::string("15") );
-    REQUIRE( fail_test("sixteen") ==  std::string("16") );
-    REQUIRE( fail_test("seventeen") ==  std::string("17") );
-    REQUIRE( fail_test("eighteen") ==  std::string("18") );
-    REQUIRE( fail_test("nineteen") ==  std::string("19") );
+    REQUIRE( enp1e9::convert_to_digits("ten") == std::string("10") );
+    REQUIRE( enp1e9::convert_to_digits("eleven") == std::string("11") );
+    REQUIRE( enp1e9::convert_to_digits("twelve") ==  std::string("12") );
+    REQUIRE( enp1e9::convert_to_digits("thirteen") ==  std::string("13") );
+    REQUIRE( enp1e9::convert_to_digits("fourteen") ==  std::string("14") );
+    REQUIRE( enp1e9::convert_to_digits("fifteen") ==  std::string("15") );
+    REQUIRE( enp1e9::convert_to_digits("sixteen") ==  std::string("16") );
+    REQUIRE( enp1e9::convert_to_digits("seventeen") ==  std::string("17") );
+    REQUIRE( enp1e9::convert_to_digits("eighteen") ==  std::string("18") );
+    REQUIRE( enp1e9::convert_to_digits("nineteen") ==  std::string("19") );
 
-    REQUIRE( fail_test("tweenty") ==  std::string("20") );
+    REQUIRE( enp1e9::convert_to_digits("tweenty") ==  std::string("20") );
 }

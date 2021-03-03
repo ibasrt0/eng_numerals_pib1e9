@@ -17,8 +17,22 @@ FetchContent_MakeAvailable(Catch2)
 include(CTest)
 enable_testing()
 
-add_executable(eng_numerals_pib1e9_cli src/cli_main.cpp)
+include_directories(./include)
 
-add_executable(tests src/test_main.cpp)
-target_link_libraries(tests PRIVATE Catch2::Catch2)
-add_test(NAME test1 COMMAND tests)
+add_library( eng_numerals_pib1e9
+  include/eng_numerals_pib1e9.hpp 
+  src/eng_numerals_pib1e9.cpp
+)
+
+add_executable( eng_numerals_pib1e9_cli
+    src/cli_main.cpp
+  )
+  target_link_libraries(eng_numerals_pib1e9_cli PRIVATE eng_numerals_pib1e9)
+
+add_executable(tests 
+    src/test_main.cpp
+  )
+  target_link_libraries(tests PRIVATE eng_numerals_pib1e9)
+  target_link_libraries(tests PRIVATE Catch2::Catch2)
+
+add_test(NAME tests COMMAND tests)

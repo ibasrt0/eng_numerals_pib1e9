@@ -4,7 +4,7 @@ eng_numerals_pib1e9: english numerals, positive integer below 1e9
 
 Work in progress C++ 14 program that convert a text with english numerals words to a text with numbers, i.e.: from 'one hundred and one bottles on the wall' to '101 bottles on the wall'.
 
-The expected valid range of number are positive integer up to 1 000 000 000 (thousand million or a billion in short scale).
+The expected valid range of number are positive integer up to 1 000 000 000 (1e9, thousand million or a billion in short scale).
 
 Build from source
 -----------------
