@@ -17,6 +17,54 @@
 #include "eng_numerals_pib1e9.hpp"
 
 #include <sstream>
+#include <regex>
+#include <cstdint>
+#include <unordered_map>
+
+namespace {
+
+    std::string string_ascii_tolower(std::string s) {
+        // Generally, in C++, we can't assume a sane text codec (UTF-8, ASCII compatible)
+        // but we assume so in this case, as we are dealing with english only.
+        // I think, in this case, it is better not to use tolower() to avoid 
+        // locale hell.
+        std::transform(s.begin(), s.end(), s.begin(), [](char c)->char { 
+            if (c <= 'Z' && c >= 'A') {
+                return c - ('Z' - 'z');
+            }
+            else {
+                return c;
+            }
+        });
+        return s;
+    }
+
+    std::uint_fast32_t parse_pib1e9(const std::string& s) {
+        const std::unordered_map<std::string, uint_fast32_t> value_map{
+            { "one", 1 },
+            { "two", 2 },
+            { "three", 3 },
+            { "four", 4 },
+            { "five", 5 },
+            { "six", 6 },
+            { "seven", 7 },
+            { "eight", 8 },
+            { "nine", 9 },
+            { "ten", 10 },
+            { "eleven", 11 },
+            { "twelve", 12 },
+            { "thirteen", 13 },
+            { "fourteen", 14 },
+            { "fifteen", 15 },
+            { "sixteen", 16 },
+            { "seventeen", 17 },
+            { "eighteen", 18 },
+            { "nineteen", 19 },
+            { "twenty", 20 },
+        };
+        return value_map.at(string_ascii_tolower(s));
+    }
+}
 
 namespace eng_numerals_pib1e9 {
 
@@ -28,6 +76,29 @@ namespace eng_numerals_pib1e9 {
     }
 
     void convert_to_digits(std::istream& input, std::ostream& output) {
+        const std::regex units_regex(
+            // NOTE: order is important, preceding disjuntions have priority
+            // and there some with the same prefix
+            "ten|eleven|twelve|thirteen|fourteen|fifteen"
+            "|sixteen|seventeen|eighteen|nineteen|twenty"
+            "|one|two|three|four|five|six|seven|eight|nine",
+            std::regex::icase|std::regex::optimize
+        );
+        for (std::string p; std::getline(input, p);) {
 
+            std::string suffix;
+            std::for_each(std::sregex_iterator(p.begin(), p.end(), units_regex), std::sregex_iterator(), 
+                [&](std::sregex_iterator::reference match){
+                    output << match.prefix();
+                    output << parse_pib1e9(match.str());
+                    suffix = match.suffix().str();
+                }
+            );
+
+            output << suffix;
+            if (!input.eof()) {
+                output << std::endl;
+            }
+        }
     }
 }

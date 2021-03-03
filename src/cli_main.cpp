@@ -13,12 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "eng_numerals_pib1e9.hpp"
+
 #include <iostream>
 
 int main(int nargs, const char* argv[]) {
-    std::cout << "Hello world!" << std::endl;
-    for (auto i=0 ; i < nargs ; ++i) {
-        std::cout << argv[i] << std::endl;
-    }
+    eng_numerals_pib1e9::convert_to_digits(std::cin, std::cout);
     return 0;
 }
