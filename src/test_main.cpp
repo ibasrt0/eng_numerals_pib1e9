@@ -45,6 +45,14 @@ TEST_CASE("one to twenty") {
     REQUIRE( enp1e9::convert_to_digits("twenty") == std::string("20") );
 }
 
+TEST_CASE("twenties") {
+    REQUIRE( enp1e9::convert_to_digits("twenty") == std::string("20") );
+    REQUIRE( enp1e9::convert_to_digits("twenty one") == std::string("21") );
+    REQUIRE( enp1e9::convert_to_digits("twenty-nine") == std::string("29") );
+    REQUIRE( enp1e9::convert_to_digits("-twenty-nine") == std::string("-29") );
+    REQUIRE( enp1e9::convert_to_digits("twenty-nine-") == std::string("29-") );
+}
+
 TEST_CASE("one test two lines") {
     const auto input = "this is one test\nwith two lines\n";
     const auto output = "this is 1 test\nwith 2 lines\n";

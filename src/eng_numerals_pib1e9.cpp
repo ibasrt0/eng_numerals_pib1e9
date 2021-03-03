@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
 #include "eng_numerals_pib1e9.hpp"
 
 #include <sstream>
@@ -39,30 +38,78 @@ namespace {
         return s;
     }
 
-    std::uint_fast32_t parse_pib1e9(const std::string& s) {
+    const std::string SPACES = "\\s+";
+    const std::string HYPHEN = "-";
+    const std::string SPACES_OR_HYPHEN = "(?:"+SPACES+"|"+HYPHEN+")";
+
+    const std::string ONE = "one";
+    const std::string TWO = "two";
+    const std::string THREE = "three";
+    const std::string FOUR = "four";
+    const std::string FIVE = "five";
+    const std::string SIX = "six";
+    const std::string SEVEN = "seven";
+    const std::string EIGHT = "eight";
+    const std::string NINE = "nine";
+    const std::string TEN = "ten";
+    const std::string ELEVEN = "eleven";
+    const std::string TWELVE = "twelve";
+    const std::string THIRTEEN = "thirteen";
+    const std::string FOURTEEN = "fourteen";
+    const std::string FIFTEEN = "fifteen";
+    const std::string SIXTEEN = "sixteen";
+    const std::string SEVENTEEN = "seventeen";
+    const std::string EIGHTEEN = "eighteen";
+    const std::string NINETEEN = "nineteen";
+    const std::string TWENTY = "twenty";
+
+    const std::string BELOW_TEN = 
+        ONE+"|"+TWO+"|"+THREE+"|"+FOUR+"|"+FIVE+"|"+SIX+"|"+SEVEN+"|"+EIGHT+"|"+NINE;
+
+    const std::string TENS = 
+        TEN+"|"+ELEVEN+"|"+TWELVE+"|"+THIRTEEN+"|"+FOURTEEN+"|"+FIFTEEN+"|"+
+        SIXTEEN+"|"+SEVENTEEN+"|"+EIGHTEEN+"|"+NINETEEN;
+
+    const std::string TWENTIES = 
+        TWENTY + HYPHEN + "(?:" + BELOW_TEN + ")|" +
+        TWENTY + SPACES + "(?:" + BELOW_TEN + ")|" +
+        TWENTY;
+
+    std::uint_fast32_t parse_pib1e9(const std::string& input_str) {
         const std::unordered_map<std::string, uint_fast32_t> value_map{
-            { "one", 1 },
-            { "two", 2 },
-            { "three", 3 },
-            { "four", 4 },
-            { "five", 5 },
-            { "six", 6 },
-            { "seven", 7 },
-            { "eight", 8 },
-            { "nine", 9 },
-            { "ten", 10 },
-            { "eleven", 11 },
-            { "twelve", 12 },
-            { "thirteen", 13 },
-            { "fourteen", 14 },
-            { "fifteen", 15 },
-            { "sixteen", 16 },
-            { "seventeen", 17 },
-            { "eighteen", 18 },
-            { "nineteen", 19 },
-            { "twenty", 20 },
+            { ONE, 1 },
+            { TWO, 2 },
+            { THREE, 3 },
+            { FOUR, 4 },
+            { FIVE, 5 },
+            { SIX, 6 },
+            { SEVEN, 7 },
+            { EIGHT, 8 },
+            { NINE, 9 },
+            { TEN, 10 },
+            { ELEVEN, 11 },
+            { TWELVE, 12 },
+            { THIRTEEN, 13 },
+            { FOURTEEN, 14 },
+            { FIFTEEN, 15 },
+            { SIXTEEN, 16 },
+            { SEVENTEEN, 17 },
+            { EIGHTEEN, 18 },
+            { NINETEEN, 19 },
+            { TWENTY, 20 },
         };
-        return value_map.at(string_ascii_tolower(s));
+
+        uint_fast32_t value = 0;
+
+        std::string s = string_ascii_tolower(input_str);
+        std::regex negative_regex(SPACES_OR_HYPHEN);
+        std::for_each(std::sregex_token_iterator(s.begin(), s.end(), negative_regex, -1), std::sregex_token_iterator(), 
+            [&](std::sregex_token_iterator::reference match){
+                value += value_map.at(match.str());
+            }
+        );
+
+        return value;
     }
 }
 
@@ -76,18 +123,17 @@ namespace eng_numerals_pib1e9 {
     }
 
     void convert_to_digits(std::istream& input, std::ostream& output) {
-        const std::regex units_regex(
+
+        const std::regex numeral_regex(
             // NOTE: order is important, preceding disjuntions have priority
             // and there some with the same prefix
-            "ten|eleven|twelve|thirteen|fourteen|fifteen"
-            "|sixteen|seventeen|eighteen|nineteen|twenty"
-            "|one|two|three|four|five|six|seven|eight|nine",
+            TWENTIES+"|"+TENS+"|"+BELOW_TEN,
             std::regex::icase|std::regex::optimize
         );
         for (std::string p; std::getline(input, p);) {
 
             std::string suffix;
-            std::for_each(std::sregex_iterator(p.begin(), p.end(), units_regex), std::sregex_iterator(), 
+            std::for_each(std::sregex_iterator(p.begin(), p.end(), numeral_regex), std::sregex_iterator(), 
                 [&](std::sregex_iterator::reference match){
                     output << match.prefix();
                     output << parse_pib1e9(match.str());
