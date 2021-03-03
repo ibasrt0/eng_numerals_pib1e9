@@ -20,6 +20,23 @@
 
 namespace enp1e9 = eng_numerals_pib1e9;
 
+TEST_CASE("without any number word") {
+    REQUIRE( enp1e9::convert_to_digits("this is a test") == std::string("this is a test") );
+    REQUIRE( enp1e9::convert_to_digits("prefixseven") == std::string("prefixseven") );
+    REQUIRE( enp1e9::convert_to_digits("prefixten") == std::string("prefixten") );
+    REQUIRE( enp1e9::convert_to_digits("sevensufix") == std::string("sevensufix") );
+    REQUIRE( enp1e9::convert_to_digits("tensufix") == std::string("tensufix") );
+    REQUIRE( enp1e9::convert_to_digits("tens") == std::string("tens") );
+    REQUIRE( enp1e9::convert_to_digits("hundreds") == std::string("hundreds") );
+    REQUIRE( enp1e9::convert_to_digits("thousands") == std::string("thousands") );
+    REQUIRE( enp1e9::convert_to_digits("millions") == std::string("millions") );
+    REQUIRE( enp1e9::convert_to_digits("billions") == std::string("billions") );
+    REQUIRE( enp1e9::convert_to_digits("hundred") == std::string("hundred") );
+    REQUIRE( enp1e9::convert_to_digits("thousand") == std::string("thousand") );
+    REQUIRE( enp1e9::convert_to_digits("million") == std::string("million") );
+    REQUIRE( enp1e9::convert_to_digits("billion") == std::string("billion") );
+}
+
 TEST_CASE("one to twenty") {
     REQUIRE( enp1e9::convert_to_digits("one") == std::string("1") );
     REQUIRE( enp1e9::convert_to_digits("two") == std::string("2") );
@@ -45,12 +62,63 @@ TEST_CASE("one to twenty") {
     REQUIRE( enp1e9::convert_to_digits("twenty") == std::string("20") );
 }
 
-TEST_CASE("twenties") {
+TEST_CASE("twenties to nineties") {
     REQUIRE( enp1e9::convert_to_digits("twenty") == std::string("20") );
     REQUIRE( enp1e9::convert_to_digits("twenty one") == std::string("21") );
     REQUIRE( enp1e9::convert_to_digits("twenty-nine") == std::string("29") );
     REQUIRE( enp1e9::convert_to_digits("-twenty-nine") == std::string("-29") );
     REQUIRE( enp1e9::convert_to_digits("twenty-nine-") == std::string("29-") );
+    REQUIRE( enp1e9::convert_to_digits("thirty") == std::string("30") );
+    REQUIRE( enp1e9::convert_to_digits("fourty one") == std::string("41") );
+    REQUIRE( enp1e9::convert_to_digits("fifty three thirty five") == std::string("53 35") );
+    REQUIRE( enp1e9::convert_to_digits("sixty-seven") == std::string("67") );
+    REQUIRE( enp1e9::convert_to_digits("-seventy-nine") == std::string("-79") );
+    REQUIRE( enp1e9::convert_to_digits("ninety-nine-") == std::string("99-") );
+}
+
+TEST_CASE("four digits hundreds") {
+    REQUIRE( enp1e9::convert_to_digits("fifty hundred") == std::string("5000") );
+    REQUIRE( enp1e9::convert_to_digits("fifteen hundred thirty two") == std::string("1532") );
+    REQUIRE( enp1e9::convert_to_digits("fifteen hundred and thirty two") == std::string("1532") );
+    REQUIRE( enp1e9::convert_to_digits("twelve fifteen hundred thirty two") == std::string("12 1532") );
+}
+
+TEST_CASE("hundreds") {
+    REQUIRE( enp1e9::convert_to_digits("five hundred") == std::string("500") );
+    REQUIRE( enp1e9::convert_to_digits("six hundred thirty two") == std::string("632") );
+    REQUIRE( enp1e9::convert_to_digits("twelve two hundred thirty two") == std::string("12 232") );
+    REQUIRE( enp1e9::convert_to_digits("a hundred thirty two") == std::string("132") );
+    REQUIRE( enp1e9::convert_to_digits("one hundred thirty two") == std::string("132") );
+    REQUIRE( enp1e9::convert_to_digits("one hundred, two hundred") == std::string("100, 200") );
+}
+
+TEST_CASE("thousands") {
+    REQUIRE( enp1e9::convert_to_digits("a thousand") == std::string("1000") );
+    REQUIRE( enp1e9::convert_to_digits("one thousand") == std::string("1000") );
+    REQUIRE( enp1e9::convert_to_digits("two thousand") == std::string("2000") );
+    REQUIRE( enp1e9::convert_to_digits("six hundred fifty four thousand three hundred twenty one") == std::string("654321") );
+    REQUIRE( enp1e9::convert_to_digits("two thousand one hundred thirty two") == std::string("2132") );
+    REQUIRE( enp1e9::convert_to_digits("two thousand, one hundred thirty two") == std::string("2132") );
+    REQUIRE( enp1e9::convert_to_digits("two thousand, one hundred and thirty two") == std::string("2132") );
+    REQUIRE( enp1e9::convert_to_digits("two thousand one hundred and thirty two") == std::string("2132") );
+    REQUIRE( enp1e9::convert_to_digits("one hundred thirty two thousand two") == std::string("132002") );
+    REQUIRE( enp1e9::convert_to_digits("a thousand thirty two") == std::string("1032") );
+    REQUIRE( enp1e9::convert_to_digits("one thousand thirty two") == std::string("1032") );
+}
+
+TEST_CASE("millions") {
+    REQUIRE( enp1e9::convert_to_digits("a million") == std::string("1000000") );
+    REQUIRE( enp1e9::convert_to_digits("a hundred million") == std::string("100000000") );
+    REQUIRE( enp1e9::convert_to_digits("a hundred million and two") == std::string("100000002") );
+    REQUIRE( enp1e9::convert_to_digits("one million") == std::string("1000000") );
+    REQUIRE( enp1e9::convert_to_digits("two million") == std::string("2000000") );
+    REQUIRE( enp1e9::convert_to_digits("nine hundred eighty seven million six hundred fifty four thousand three hundred twenty one") == std::string("987654321") );
+    REQUIRE( enp1e9::convert_to_digits("a hundred eighty seven million six hundred fifty four thousand three hundred twenty one") == std::string("187654321") );
+}
+
+TEST_CASE("billion") {
+    REQUIRE( enp1e9::convert_to_digits("a billion") == std::string("1000000000") );
+    REQUIRE( enp1e9::convert_to_digits("one billion") == std::string("1000000000") );
 }
 
 TEST_CASE("one test two lines") {

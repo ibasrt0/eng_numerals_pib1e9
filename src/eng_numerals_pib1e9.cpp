@@ -38,9 +38,20 @@ namespace {
         return s;
     }
 
+    // ancilliary function to mark a whole word in regex
+    inline std::string wholeword(std::string s) {
+        return "\\b"+s+"\\b"; 
+    }
+
+    ///////////////////////////////////////////////////////////////
+
+    // scaffolding to define a regex expresion to search and validate number in words
+
     const std::string SPACES = "\\s+";
-    const std::string HYPHEN = "-";
+    const std::string HYPHEN = "-"; // only one hyphen
     const std::string SPACES_OR_HYPHEN = "(?:"+SPACES+"|"+HYPHEN+")";
+    const std::string SPACES_OR_AND = "(?:"+SPACES+"|"+SPACES+"and"+SPACES+")";
+    const std::string SPACES_OR_COMMA_OR_AND = "(?:"+SPACES+"|,"+SPACES+"|"+SPACES+"and"+SPACES+")";
 
     const std::string ONE = "one";
     const std::string TWO = "two";
@@ -62,20 +73,92 @@ namespace {
     const std::string EIGHTEEN = "eighteen";
     const std::string NINETEEN = "nineteen";
     const std::string TWENTY = "twenty";
+    const std::string THIRTY = "thirty";
+    const std::string FOURTY = "fourty";
+    const std::string FIFTY = "fifty";
+    const std::string SIXTY = "sixty";
+    const std::string SEVENTY = "seventy";
+    const std::string EIGHTY = "eighty";
+    const std::string NINETY = "ninety";
+    const std::string HUNDRED = "hundred";
+    const std::string THOUSAND = "thousand";
+    const std::string MILLION = "million";
+    const std::string BILLION = "billion"; // short scale
 
     const std::string BELOW_TEN = 
-        ONE+"|"+TWO+"|"+THREE+"|"+FOUR+"|"+FIVE+"|"+SIX+"|"+SEVEN+"|"+EIGHT+"|"+NINE;
+        "(?:"+wholeword(ONE)+"|"+wholeword(TWO)+"|"+wholeword(THREE)+"|"+
+        wholeword(FOUR)+"|"+wholeword(FIVE)+"|"+wholeword(SIX)+"|"+
+        wholeword(SEVEN)+"\\b|"+wholeword(EIGHT)+"|"+wholeword(NINE)+")";
 
     const std::string TENS = 
-        TEN+"|"+ELEVEN+"|"+TWELVE+"|"+THIRTEEN+"|"+FOURTEEN+"|"+FIFTEEN+"|"+
-        SIXTEEN+"|"+SEVENTEEN+"|"+EIGHTEEN+"|"+NINETEEN;
+        "(?:"+wholeword(TEN)+"|"+wholeword(ELEVEN)+"|"+wholeword(TWELVE)+"|"+
+        wholeword(THIRTEEN)+"|"+wholeword(FOURTEEN)+"|"+wholeword(FIFTEEN)+"|"+
+        wholeword(SIXTEEN)+"|"+wholeword(SEVENTEEN)+"|"+wholeword(EIGHTEEN)+"|"+
+        wholeword(NINETEEN)+")";
 
-    const std::string TWENTIES = 
-        TWENTY + HYPHEN + "(?:" + BELOW_TEN + ")|" +
-        TWENTY + SPACES + "(?:" + BELOW_TEN + ")|" +
-        TWENTY;
+    const std::string TWENTIES_TO_NINETY =
+        "(?:" + wholeword(TWENTY) +"|"+ wholeword(THIRTY) +"|"+
+        wholeword(FOURTY) +"|"+ wholeword(FIFTY) +"|"+
+        wholeword(SIXTY) +"|"+ wholeword(SEVENTY) +"|"+
+        wholeword(EIGHTY) +"|"+ wholeword(NINETY) +")";
 
+    const std::string TWENTIES_TO_NINETIES =
+        "(?:" + TWENTIES_TO_NINETY + 
+            "(?:" + HYPHEN + BELOW_TEN + "|" + SPACES + BELOW_TEN + ")?"
+        ")";
+
+    const std::string BELOW_HUNDRED =
+        "(?:"+TWENTIES_TO_NINETIES+"|"+TENS+"|"+BELOW_TEN+")";
+
+    // fifteen hundred -> 1500
+    // NOTE: this is only for final numbers, not part of a thousand or million
+    const std::string FOUR_DIGITS_HUNDREDS =
+        "(?:" + BELOW_HUNDRED + SPACES + HUNDRED + "(?:" + SPACES_OR_AND + BELOW_HUNDRED + ")?)";
+
+    const std::string REGULAR_HUNDREDS =
+        "(?:" + BELOW_TEN + SPACES + HUNDRED + "(?:" + SPACES_OR_AND + BELOW_HUNDRED + ")?)";
+
+    // a hundred eleven -> 1511
+    // NOTE: this is only for final numbers, not prefix of a thousand or million
+    const std::string A_HUNDREDS =
+        "(?:a" + SPACES + HUNDRED + "(?:" + SPACES_OR_AND + BELOW_HUNDRED + ")?)";
+
+    // NOTE: only REGULAR_HUNDREDS
+    const std::string BELOW_THOUSAND =
+        "(?:"+REGULAR_HUNDREDS+"|"+BELOW_HUNDRED+")";
+
+    const std::string REGULAR_THOUSANDS =
+        "(?:"+BELOW_THOUSAND + SPACES + THOUSAND + "(?:" + SPACES_OR_COMMA_OR_AND + BELOW_THOUSAND +")?)";
+
+    // a thounsand eleven -> 1011
+    // NOTE: this is only for final numbers, not prefix of million
+    const std::string A_THOUSANDS =
+        "(?:a" + SPACES + THOUSAND + "(?:" + SPACES_OR_COMMA_OR_AND + BELOW_THOUSAND +")?)";
+
+    // NOTE: only REGULAR_THOUSANDS
+    const std::string BELOW_MILLION =
+        "(?:"+REGULAR_THOUSANDS+"|"+BELOW_THOUSAND+")";
+
+    const std::string REGULAR_MILLIONS =
+        "(?:"+BELOW_THOUSAND + SPACES + MILLION + "(?:" + SPACES_OR_COMMA_OR_AND + BELOW_MILLION +")?)";
+
+    const std::string A_MILLIONS =
+        "(?:a"+ SPACES + MILLION + "(?:" + SPACES_OR_COMMA_OR_AND + BELOW_MILLION +")?)";
+
+    const std::string A_HUNDRED_MILLIONS =
+        "(?:"+ A_HUNDREDS + SPACES + MILLION + "(?:" + SPACES_OR_COMMA_OR_AND + BELOW_MILLION +")?)";
+
+    const std::string BILLIONS =
+        "(?:(?:a|" + ONE + ")" + SPACES + BILLION +")";
+
+    ///////////////////////////////////////////////////////////////
+
+    // parse a string validate as number as words
     std::uint_fast32_t parse_pib1e9(const std::string& input_str) {
+        // there is any validation with in this function
+        // becase input_str is validated as a number as words by using the regex
+
+        // map a value for each token
         const std::unordered_map<std::string, uint_fast32_t> value_map{
             { ONE, 1 },
             { TWO, 2 },
@@ -97,18 +180,71 @@ namespace {
             { EIGHTEEN, 18 },
             { NINETEEN, 19 },
             { TWENTY, 20 },
+            { THIRTY, 30 },
+            { FOURTY, 40 },
+            { FIFTY, 50 },
+            { SIXTY, 60 },
+            { SEVENTY, 70 },
+            { EIGHTY, 80 },
+            { NINETY, 90 },
+            { HUNDRED, 100 },
+            { THOUSAND, 1'000 },
+            { MILLION, 1'000'000 },
+            { BILLION, 1'000'000'000 }, // short scale
         };
 
-        uint_fast32_t value = 0;
+        bool billion_flag = false;
+        uint_fast32_t value = 0, value100=0, value1000=0, value1e6=0;
 
         std::string s = string_ascii_tolower(input_str);
-        std::regex negative_regex(SPACES_OR_HYPHEN);
+
+        // iterator over tokens that are not '-', ',' or spaces
+        std::regex negative_regex("-|,|\\s+");
         std::for_each(std::sregex_token_iterator(s.begin(), s.end(), negative_regex, -1), std::sregex_token_iterator(), 
-            [&](std::sregex_token_iterator::reference match){
-                value += value_map.at(match.str());
+            [&](std::sregex_token_iterator::reference match) {
+                // ignore tokens without value
+                if (!billion_flag && value_map.count(match.str())) {
+                    auto match_value = value_map.at(match.str());
+                    switch(match_value) {
+                    case 100:
+                        // shift to hundreds
+                        value100 = value; 
+                        value100 = value100? value100 : 1;
+                        value = 0;
+                        break;
+                    case 1'000:
+                        // shift to thousands
+                        value1000 = value + 100*value100; 
+                        value1000 = value1000? value1000 : 1;
+                        value = 0;
+                        value100 = 0;
+                        break;
+                    case 1'000'000:
+                        // shift to millions
+                        value1e6 = value + 100*value100 + 1000*value1000;; 
+                        value1e6 = value1e6? value1e6 : 1;
+                        value = 0;
+                        value100 = 0;
+                        value1000 = 0;
+                        break;
+                    case 1'000'000'000:
+                        // billion, special case because it is the upper limit
+                        billion_flag = true;
+                        break;
+                    default:
+                        value += match_value;
+                        break;
+                    }
+                }
             }
         );
 
+        if (billion_flag) {
+            value = 1'000'000'000;
+        }
+        else {
+            value = value + 100*value100 + 1000*value1000 + 1'000'000*value1e6;
+        }
         return value;
     }
 }
@@ -124,24 +260,54 @@ namespace eng_numerals_pib1e9 {
 
     void convert_to_digits(std::istream& input, std::ostream& output) {
 
+        // build a big regex to search & validate any number written in words        
         const std::regex numeral_regex(
             // NOTE: order is important, preceding disjuntions have priority
             // and there some with the same prefix
-            TWENTIES+"|"+TENS+"|"+BELOW_TEN,
+            BILLIONS  + "|" +
+
+            A_HUNDRED_MILLIONS  + "|" +
+            A_MILLIONS  + "|" +
+            REGULAR_MILLIONS  + "|" +
+
+            A_THOUSANDS + "|" +
+            REGULAR_THOUSANDS + "|" +
+
+            A_HUNDREDS + "|" +
+            FOUR_DIGITS_HUNDREDS + "|" +
+            REGULAR_HUNDREDS + "|" +
+
+            TWENTIES_TO_NINETIES + "|" +
+            TENS + "|" +
+            BELOW_TEN,
             std::regex::icase|std::regex::optimize
         );
+
+        // iterate over each paragraph (separated by newline)
         for (std::string p; std::getline(input, p);) {
 
-            std::string suffix;
+            // keep the current paragraph to write to the output
+            // in case there aren't any match
+            std::string suffix=p;
+
+            // iterate over each match
             std::for_each(std::sregex_iterator(p.begin(), p.end(), numeral_regex), std::sregex_iterator(), 
-                [&](std::sregex_iterator::reference match){
+                [&](std::sregex_iterator::reference match) {
+                    // output the prefix, non matching parts
                     output << match.prefix();
+
+                    // parse and output the match
                     output << parse_pib1e9(match.str());
+
+                    // keep the still not processed part of the paragraph 
                     suffix = match.suffix().str();
                 }
             );
 
+            // output the rest of the paragraph, non matching parts
             output << suffix;
+
+            // newline if isn't the end of the stream
             if (!input.eof()) {
                 output << std::endl;
             }
