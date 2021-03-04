@@ -18,19 +18,32 @@
 
 #include <iostream>
 #include <string>
+#include <functional>
 
 namespace eng_numerals_pib1e9 {
+
+    //! Default log function for convert_to_digits(std::istream&, std::ostream&).
+    /**
+     Write the \p log_message and newline to std::cerr.
+     */
+    void default_log_function(const std::string& log_message);
+
     //! Converts written numbers in words to digits.
     /*! 
     Read from the \p input stream paragraphs delimited by newline,
     and then write to the \p output stream
     but with written numbers in words converted to digits.
+    \param log_function log function to process message logs
     */
-    void convert_to_digits(std::istream& input, std::ostream& output);
+    void convert_to_digits(
+        std::istream& input,
+        std::ostream& output,
+        std::function<void(const std::string&)> log_function = default_log_function
+    );
 
     //! Converts written numbers in words to digits.
     /*!
-    Convenient function that wrap convert_to_digits(std::istream&, std::ostream&)
+    Convenient function that wrap convert_to_digits(std::istream&, std::ostream&, std::function<void(const std::string&))
     to use it with std::strings instead of streams.
     */
     std::string convert_to_digits(const std::string& input);

@@ -251,6 +251,10 @@ namespace {
 
 namespace eng_numerals_pib1e9 {
 
+    void default_log_function(const std::string& log_message) {
+        std::cerr << log_message << std::endl;
+    }
+
     std::string convert_to_digits(const std::string& input_string) {
         std::istringstream input(input_string);
         std::ostringstream output;
@@ -258,8 +262,16 @@ namespace eng_numerals_pib1e9 {
         return output.str();
     }
 
-    void convert_to_digits(std::istream& input, std::ostream& output) {
+    void clear_ostringstrem(std::ostringstream& os) {
+        os.str("");
+        os.clear();
+    }
 
+    void convert_to_digits(
+        std::istream& input,
+        std::ostream& output,
+        std::function<void(const std::string&)> logf
+    ) {
         // build a big regex to search & validate any number written in words        
         const std::regex numeral_regex(
             // NOTE: order is important, preceding disjuntions have priority
@@ -283,16 +295,36 @@ namespace eng_numerals_pib1e9 {
             std::regex::icase|std::regex::optimize
         );
 
+        std::ostringstream logs;
+
+        logs << "begin iteration over paragraph";
+        logf(logs.str());
+        clear_ostringstrem(logs);
+
         // iterate over each paragraph (separated by newline)
         for (std::string p; std::getline(input, p);) {
+
+            logs << "new paragraph of size " << p.size();
+            logf(logs.str());
+            clear_ostringstrem(logs);
 
             // keep the current paragraph to write to the output
             // in case there aren't any match
             std::string suffix=p;
 
+            logs << "begin iteration over matches";
+            logf(logs.str());
+            clear_ostringstrem(logs);
+
+
             // iterate over each match
             std::for_each(std::sregex_iterator(p.begin(), p.end(), numeral_regex), std::sregex_iterator(), 
                 [&](std::sregex_iterator::reference match) {
+
+                    logs << "new match: " << match.str();
+                    logf(logs.str());
+                    clear_ostringstrem(logs);
+
                     // output the prefix, non matching parts
                     output << match.prefix();
 
@@ -304,6 +336,10 @@ namespace eng_numerals_pib1e9 {
                 }
             );
 
+            logs << "end iteration over matches";
+            logf(logs.str());
+            clear_ostringstrem(logs);
+
             // output the rest of the paragraph, non matching parts
             output << suffix;
 
@@ -311,6 +347,14 @@ namespace eng_numerals_pib1e9 {
             if (!input.eof()) {
                 output << std::endl;
             }
+            else {
+                logs << "end of input stream";
+                clear_ostringstrem(logs);
+            }
         }
+
+        logs << "end iteration over paragraph";
+        logf(logs.str());
+        clear_ostringstrem(logs);
     }
 }
