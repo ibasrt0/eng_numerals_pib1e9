@@ -25,6 +25,14 @@ cmake -H. -B _build; cmake --build _build
 
 A command line program (`eng_numerals_pib1e9_cli`) and a test program to run various test (`tests`) will be generated.
 
+Tests code coverage
+-------------------
+A report of the tests code coverage can be generate (it is disable by default):
+- install gcov, lcov & gcc, in ubuntu/debian: `sudo apt lcov`
+- enable `CODE_COVERAGE=ON` at cmake configuration: `cmake -DCODE_COVERAGE=ON -H. -B_build`
+- build the target `tests_coverage`: `cmake --build _build -tgt tests_coverage -j`
+- open the generated html file `_build/tests_coverage/index.html`
+
 Example
 -------
 ```
