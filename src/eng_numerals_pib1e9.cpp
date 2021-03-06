@@ -251,8 +251,11 @@ namespace {
 
 namespace eng_numerals_pib1e9 {
 
-    void default_log_function(const std::string& log_message) {
-        std::cerr << log_message << std::endl;
+    void default_log_function(int level, LogMessageFunction log_message_function) {
+        if (level>=0) {
+            log_message_function(std::cerr);
+            std::cerr << std::endl;
+    }
     }
 
     std::string convert_to_digits(const std::string& input_string) {
@@ -262,15 +265,10 @@ namespace eng_numerals_pib1e9 {
         return output.str();
     }
 
-    void clear_ostringstrem(std::ostringstream& os) {
-        os.str("");
-        os.clear();
-    }
-
     void convert_to_digits(
         std::istream& input,
         std::ostream& output,
-        std::function<void(const std::string&)> logf
+        LogFunction logf
     ) {
         // build a big regex to search & validate any number written in words        
         const std::regex numeral_regex(
@@ -295,35 +293,32 @@ namespace eng_numerals_pib1e9 {
             std::regex::icase|std::regex::optimize
         );
 
-        std::ostringstream logs;
-
+        logf(0, [](std::ostream& logs) {
         logs << "begin iteration over paragraph";
-        logf(logs.str());
-        clear_ostringstrem(logs);
+        });
 
         // iterate over each paragraph (separated by newline)
         for (std::string p; std::getline(input, p);) {
 
+            logf(0, [&](std::ostream& logs) {
             logs << "new paragraph of size " << p.size();
-            logf(logs.str());
-            clear_ostringstrem(logs);
+            });
 
             // keep the current paragraph to write to the output
             // in case there aren't any match
             std::string suffix=p;
 
+            logf(0, [](std::ostream& logs) {
             logs << "begin iteration over matches";
-            logf(logs.str());
-            clear_ostringstrem(logs);
-
+            });
 
             // iterate over each match
             std::for_each(std::sregex_iterator(p.begin(), p.end(), numeral_regex), std::sregex_iterator(), 
                 [&](std::sregex_iterator::reference match) {
 
+                    logf(0, [&](std::ostream& logs) {
                     logs << "new match: " << match.str();
-                    logf(logs.str());
-                    clear_ostringstrem(logs);
+                    });
 
                     // output the prefix, non matching parts
                     output << match.prefix();
@@ -336,9 +331,9 @@ namespace eng_numerals_pib1e9 {
                 }
             );
 
+            logf(0, [](std::ostream& logs) {
             logs << "end iteration over matches";
-            logf(logs.str());
-            clear_ostringstrem(logs);
+            });
 
             // output the rest of the paragraph, non matching parts
             output << suffix;
@@ -348,13 +343,15 @@ namespace eng_numerals_pib1e9 {
                 output << std::endl;
             }
             else {
+                logf(0, [](std::ostream& logs) {
                 logs << "end of input stream";
-                clear_ostringstrem(logs);
+                });
             }
         }
 
+        logf(0, [](std::ostream& logs) {
         logs << "end iteration over paragraph";
-        logf(logs.str());
-        clear_ostringstrem(logs);
+        });
+
     }
 }

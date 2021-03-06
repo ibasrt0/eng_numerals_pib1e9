@@ -22,28 +22,41 @@
 
 namespace eng_numerals_pib1e9 {
 
-    //! Default log function for convert_to_digits(std::istream&, std::ostream&).
+    //! Type for callables that write a log message to stream.
+    /** 
+     See default_log_function(int, LogMessageFunction) for an example.
+     */ 
+    typedef std::function<void(std::ostream&)> LogMessageFunction;
+
+    //! Type for callables that process log messages.
+    /** 
+     See default_log_function(int, LogMessageFunction) for an example.
+     */ 
+    typedef std::function<void(int, LogMessageFunction)> LogFunction;
+
+    //! Default log function for convert_to_digits(std::istream&, std::ostream&, LogFunction).
     /**
-     Write the \p log_message and newline to std::cerr.
+     If \p level => 0, call \p log_message_function with std::cerr to write a
+     log message and then write a newline to std::cerr.
      */
-    void default_log_function(const std::string& log_message);
+    void default_log_function(int level, LogMessageFunction log_message_function);
 
     //! Converts written numbers in words to digits.
     /*! 
     Read from the \p input stream paragraphs delimited by newline,
     and then write to the \p output stream
     but with written numbers in words converted to digits.
-    \param log_function log function to process message logs
+    \param log_function log function to process message logs.
     */
     void convert_to_digits(
         std::istream& input,
         std::ostream& output,
-        std::function<void(const std::string&)> log_function = default_log_function
+        LogFunction log_function = default_log_function
     );
 
     //! Converts written numbers in words to digits.
     /*!
-    Convenient function that wrap convert_to_digits(std::istream&, std::ostream&, std::function<void(const std::string&))
+    Convenient function that wrap convert_to_digits(std::istream&, std::ostream&, LogFunction)
     to use it with std::strings instead of streams.
     */
     std::string convert_to_digits(const std::string& input);
